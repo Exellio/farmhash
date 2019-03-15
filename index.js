@@ -60,6 +60,16 @@ module.exports = {
     }
     throw new Error('Expected a String or Buffer for input');
   },
+  hash128: function (input) {
+    if (typeof input === 'string') {
+      return farmhash.Hash128String(input);
+    }
+    if (Buffer.isBuffer(input)) {
+      throw new TypeError(`Not Implemented`);
+      // return farmhash.Hash64Buffer(input);
+    }
+    throw new Error('Expected a String or Buffer for input');
+  },
   // Fingerprint methods - platform independent
   fingerprint32: function (input) {
     if (typeof input === 'string') {

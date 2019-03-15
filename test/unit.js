@@ -77,6 +77,13 @@ assert.throws(function () {
   farmhash.hash64WithSeeds(seed, seed, seed);
 });
 
+// hash128 - valid
+const hash128 = farmhash.hash128(input);
+console.log('hash128');
+console.log(hash128);
+// assert.strictEqual('string', typeof hash128);
+// assert.strictEqual(true, /^[0-9]{1,20}$/.test(hash128));
+
 // fingerprint32 - valid
 const fingerprint32 = farmhash.fingerprint32(input);
 assert.strictEqual('number', typeof fingerprint32);

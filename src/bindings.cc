@@ -26,6 +26,59 @@ std::string Uint64ToString(const T& t) {
   return ss.str();
 }
 
+// template< class U1, class U2 >
+// util::uint128_t util::uint128_t::operator<<(const T& rhs) const{
+//     const util::uint64_t shift = rhs.LOWER;
+//     if (((bool) rhs.UPPER) || (shift >= 128)){
+//         return uint128_0;
+//     }
+//     else if (shift == 64){
+//         return util::uint128_t(LOWER, 0);
+//     }
+//     else if (shift == 0){
+//         return *this;
+//     }
+//     else if (shift < 64){
+//         return util::uint128_t((UPPER << shift) + (LOWER >> (64 - shift)), LOWER << shift);
+//     }
+//     else if ((128 > shift) && (shift > 64)){
+//         return util::uint128_t(LOWER << (shift - 64), 0);
+//     }
+//     else{
+//         return uint128_0;
+//     }
+// }
+
+template <typename T>
+std::string Uint128ToString(const T& t) {
+  uint64_t a;
+  uint64_t b;
+
+  a = t.first;
+  b = t.second;
+
+  std::ostringstream ss;
+  ss << a;
+  ss << b;
+  return ss.str();
+}
+
+// Convert uint128_t to string via charmap
+// static const char* charmap = "0123456789";
+// std::string Uint128ToString(const util::uint128_t& value)
+// {
+//     std::string result;
+//     result.reserve( 40 );
+//     util::uint128_t helper = value;
+
+//     do {
+//         result += charmap[ helper % 10 ];
+//         helper /= 10;
+//     } while ( helper );
+//     std::reverse( result.begin(), result.end() );
+//     return result;
+// }
+
 // Hash methods - platform dependent
 
 NAN_METHOD(Hash32Buffer) {
@@ -106,6 +159,13 @@ NAN_METHOD(Hash64WithSeedsString) {
   info.GetReturnValue().Set(Nan::New(Uint64ToString(hash)).ToLocalChecked());
 }
 
+NAN_METHOD(Hash128String) {
+  Nan::HandleScope();
+  std::string input = *Nan::Utf8String(info[0]);
+  util::uint128_t hash = util::Hash128(input);
+  info.GetReturnValue().Set(Nan::New(Uint128ToString(hash)).ToLocalChecked());
+}
+
 // Fingerprint methods - platform independent
 
 NAN_METHOD(Fingerprint32Buffer) {
@@ -159,6 +219,10 @@ NAN_MODULE_INIT(init) {
     Nan::GetFunction(Nan::New<v8::FunctionTemplate>(Hash64WithSeedsBuffer)).ToLocalChecked());
   Nan::Set(target, Nan::New("Hash64WithSeedsString").ToLocalChecked(),
     Nan::GetFunction(Nan::New<v8::FunctionTemplate>(Hash64WithSeedsString)).ToLocalChecked());
+
+  Nan::Set(target, Nan::New("Hash128String").ToLocalChecked(),
+    Nan::GetFunction(Nan::New<v8::FunctionTemplate>(Hash128String)).ToLocalChecked());
+
   Nan::Set(target, Nan::New("Fingerprint32Buffer").ToLocalChecked(),
     Nan::GetFunction(Nan::New<v8::FunctionTemplate>(Fingerprint32Buffer)).ToLocalChecked());
   Nan::Set(target, Nan::New("Fingerprint32String").ToLocalChecked(),
