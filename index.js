@@ -62,11 +62,20 @@ module.exports = {
   },
   hash128: function (input) {
     if (typeof input === 'string') {
-      return farmhash.Hash128String(input);
+      return BigInt(farmhash.Hash128String(input));
     }
     if (Buffer.isBuffer(input)) {
-      throw new TypeError(`Not Implemented`);
-      // return farmhash.Hash64Buffer(input);
+      return BigInt(farmhash.Hash128Buffer(input));
+    }
+    throw new Error('Expected a String or Buffer for input');
+  },
+  hash128WithSeed: function (input, seed) {
+    verifyInteger(seed);
+    if (typeof input === 'string') {
+      return BigInt(farmhash.Hash128WithSeedString(input, seed));
+    }
+    if (Buffer.isBuffer(input)) {
+      return BigInt(farmhash.Hash128WithSeedBuffer(input, seed));
     }
     throw new Error('Expected a String or Buffer for input');
   },
@@ -86,6 +95,15 @@ module.exports = {
     }
     if (Buffer.isBuffer(input)) {
       return farmhash.Fingerprint64Buffer(input);
+    }
+    throw new Error('Expected a String or Buffer for input');
+  },
+  fingerprint128: function (input) {
+    if (typeof input === 'string') {
+      return BigInt(farmhash.Fingerprint128String(input));
+    }
+    if (Buffer.isBuffer(input)) {
+      return BigInt(farmhash.Fingerprint128Buffer(input));
     }
     throw new Error('Expected a String or Buffer for input');
   }

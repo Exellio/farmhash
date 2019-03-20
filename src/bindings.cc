@@ -26,29 +26,6 @@ std::string Uint64ToString(const T& t) {
   return ss.str();
 }
 
-// template< class U1, class U2 >
-// util::uint128_t util::uint128_t::operator<<(const T& rhs) const{
-//     const util::uint64_t shift = rhs.LOWER;
-//     if (((bool) rhs.UPPER) || (shift >= 128)){
-//         return uint128_0;
-//     }
-//     else if (shift == 64){
-//         return util::uint128_t(LOWER, 0);
-//     }
-//     else if (shift == 0){
-//         return *this;
-//     }
-//     else if (shift < 64){
-//         return util::uint128_t((UPPER << shift) + (LOWER >> (64 - shift)), LOWER << shift);
-//     }
-//     else if ((128 > shift) && (shift > 64)){
-//         return util::uint128_t(LOWER << (shift - 64), 0);
-//     }
-//     else{
-//         return uint128_0;
-//     }
-// }
-
 template <typename T>
 std::string Uint128ToString(const T& t) {
   uint64_t a;
@@ -159,12 +136,36 @@ NAN_METHOD(Hash64WithSeedsString) {
   info.GetReturnValue().Set(Nan::New(Uint64ToString(hash)).ToLocalChecked());
 }
 
+NAN_METHOD(Hash128Buffer) {
+  Nan::HandleScope();
+  v8::Local<v8::Object> buffer = info[0].As<v8::Object>();
+  util::uint128_t hash = util::Hash128(node::Buffer::Data(buffer), node::Buffer::Length(buffer));
+  info.GetReturnValue().Set(Nan::New(Uint128ToString(hash)).ToLocalChecked());
+}
+
 NAN_METHOD(Hash128String) {
   Nan::HandleScope();
   std::string input = *Nan::Utf8String(info[0]);
   util::uint128_t hash = util::Hash128(input);
   info.GetReturnValue().Set(Nan::New(Uint128ToString(hash)).ToLocalChecked());
 }
+
+NAN_METHOD(Hash128WithSeedBuffer) {
+  Nan::HandleScope();
+  v8::Local<v8::Object> buffer = info[0].As<v8::Object>();
+  util::uint128_t seed = util::uint128_t(0, static_cast<uint64_t>(Nan::To<uint32_t>(info[1]).FromJust()));
+  util::uint128_t hash = util::Hash128WithSeed(node::Buffer::Data(buffer), node::Buffer::Length(buffer), seed);
+  info.GetReturnValue().Set(Nan::New(Uint128ToString(hash)).ToLocalChecked());
+}
+
+NAN_METHOD(Hash128WithSeedString) {
+  Nan::HandleScope();
+  std::string input = *Nan::Utf8String(info[0]);
+  util::uint128_t seed = util::uint128_t(0, static_cast<uint64_t>(Nan::To<uint32_t>(info[1]).FromJust()));
+  util::uint128_t hash = util::Hash128WithSeed(input, seed);
+  info.GetReturnValue().Set(Nan::New(Uint128ToString(hash)).ToLocalChecked());
+}
+
 
 // Fingerprint methods - platform independent
 
@@ -196,6 +197,20 @@ NAN_METHOD(Fingerprint64String) {
   info.GetReturnValue().Set(Nan::New(Uint64ToString(hash)).ToLocalChecked());
 }
 
+NAN_METHOD(Fingerprint128Buffer) {
+  Nan::HandleScope();
+  v8::Local<v8::Object> buffer = info[0].As<v8::Object>();
+  util::uint128_t hash = util::Fingerprint128(node::Buffer::Data(buffer), node::Buffer::Length(buffer));
+  info.GetReturnValue().Set(Nan::New(Uint128ToString(hash)).ToLocalChecked());
+}
+
+NAN_METHOD(Fingerprint128String) {
+  Nan::HandleScope();
+  std::string input = *Nan::Utf8String(info[0]);
+  util::uint128_t hash = util::Fingerprint128(input);
+  info.GetReturnValue().Set(Nan::New(Uint128ToString(hash)).ToLocalChecked());
+}
+
 // Init
 
 NAN_MODULE_INIT(init) {
@@ -220,8 +235,14 @@ NAN_MODULE_INIT(init) {
   Nan::Set(target, Nan::New("Hash64WithSeedsString").ToLocalChecked(),
     Nan::GetFunction(Nan::New<v8::FunctionTemplate>(Hash64WithSeedsString)).ToLocalChecked());
 
+  Nan::Set(target, Nan::New("Hash128Buffer").ToLocalChecked(),
+    Nan::GetFunction(Nan::New<v8::FunctionTemplate>(Hash128Buffer)).ToLocalChecked());
   Nan::Set(target, Nan::New("Hash128String").ToLocalChecked(),
     Nan::GetFunction(Nan::New<v8::FunctionTemplate>(Hash128String)).ToLocalChecked());
+  Nan::Set(target, Nan::New("Hash128WithSeedBuffer").ToLocalChecked(),
+    Nan::GetFunction(Nan::New<v8::FunctionTemplate>(Hash128WithSeedBuffer)).ToLocalChecked());
+  Nan::Set(target, Nan::New("Hash128WithSeedString").ToLocalChecked(),
+    Nan::GetFunction(Nan::New<v8::FunctionTemplate>(Hash128WithSeedString)).ToLocalChecked());
 
   Nan::Set(target, Nan::New("Fingerprint32Buffer").ToLocalChecked(),
     Nan::GetFunction(Nan::New<v8::FunctionTemplate>(Fingerprint32Buffer)).ToLocalChecked());

@@ -6,6 +6,10 @@ const farmhash = require('../index');
 const input = 'The quick brown fox jumped over the lazy sleeping dog';
 const seed = 123;
 
+/*******************************************************************************
+ * HASH32
+******************************************************************************/
+
 // hash32 - valid
 const hash32 = farmhash.hash32(input);
 assert.strictEqual('number', typeof hash32);
@@ -31,6 +35,11 @@ assert.throws(function () {
 assert.throws(function () {
   farmhash.hash32WithSeed(input, input);
 });
+
+
+/*******************************************************************************
+ * HASH64
+******************************************************************************/
 
 // hash64 - valid
 const hash64 = farmhash.hash64(input);
@@ -77,12 +86,40 @@ assert.throws(function () {
   farmhash.hash64WithSeeds(seed, seed, seed);
 });
 
+
+/*******************************************************************************
+ * HASH128
+******************************************************************************/
+
 // hash128 - valid
 const hash128 = farmhash.hash128(input);
-console.log('hash128');
 console.log(hash128);
-// assert.strictEqual('string', typeof hash128);
-// assert.strictEqual(true, /^[0-9]{1,20}$/.test(hash128));
+assert.strictEqual('bigint', typeof hash128);
+assert.strictEqual(true, /^[0-9]{1,39}$/.test(hash128));
+
+// hash128 - invalid
+assert.throws(function () {
+  farmhash.hash128(seed);
+});
+
+// hash128WithSeed - valid
+const hash128WithSeed = farmhash.hash128WithSeed(input, seed);
+console.log(hash128WithSeed);
+assert.strictEqual('bigint', typeof hash128WithSeed);
+assert.strictEqual(true, /^[0-9]{1,39}$/.test(hash128WithSeed));
+
+// hash128WithSeed - invalid
+assert.throws(function () {
+  farmhash.hash128WithSeed(input);
+});
+assert.throws(function () {
+  farmhash.hash128WithSeed(seed, seed);
+});
+
+
+/*******************************************************************************
+ * FINGERPRINT32
+******************************************************************************/
 
 // fingerprint32 - valid
 const fingerprint32 = farmhash.fingerprint32(input);
@@ -93,6 +130,11 @@ assert.strictEqual(2280764877, fingerprint32);
 assert.throws(function () {
   farmhash.fingerprint32(seed);
 });
+
+
+/*******************************************************************************
+ * FINGERPRINT64
+******************************************************************************/
 
 // fingerprint64 - valid
 const fingerprint64 = farmhash.fingerprint64(input);

@@ -261,7 +261,7 @@ inline uint128_t Hash128(const Str& s) {
 template <typename Str>
 inline uint128_t Hash128WithSeed(const Str& s, uint128_t seed) {
   assert(sizeof(s[0]) == 1);
-  return Hash128(s.data(), s.length(), seed);
+  return Hash128WithSeed(s.data(), s.length(), seed);
 }
 
 // FINGERPRINTING (i.e., good, portable, forever-fixed hash functions)
